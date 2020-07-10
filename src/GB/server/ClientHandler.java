@@ -28,7 +28,7 @@ public class ClientHandler {
                             if (str.startsWith("/auth")) {
                                 String[] tokens = str.split(" ");
                                 String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
-                                if (newNick != null) {
+                                if (newNick != null && !server.isBusyNickname(newNick)) {
                                     sendMsg("/authok");
                                     nick = newNick;
                                     server.subscribe(ClientHandler.this);
@@ -45,8 +45,9 @@ public class ClientHandler {
                                 out.writeUTF("/serverClosed");
                                 break;
                             }
-                            server.broadcastMsg(nick + ": " + str);
-
+                            if (str.startsWith("/w")){
+                                server.tryToSendPrivateMSG(str, nick);
+                            } else server.broadcastMsg(nick + ": " + str);
                         }
 
                     } catch (IOException e) {
@@ -85,4 +86,9 @@ public class ClientHandler {
             e.printStackTrace();
         }
     }
+
+    public String getNick(){
+        return this.nick;
+    }
+
 }

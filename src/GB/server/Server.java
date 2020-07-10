@@ -57,4 +57,43 @@ public class Server {
             o.sendMsg(msg);
         }
     }
+
+    public void tryToSendPrivateMSG(String str, String senderName) {
+        boolean hasReceiver = false;
+        String[] tokens = str.split(" ");
+        String receiverName = tokens[1];
+        StringBuilder msg = new StringBuilder();
+        for (int i = 2; i < tokens.length; i++){
+            msg.append(tokens[i]);
+            msg.append(" ");
+        }
+        for (ClientHandler o: clients) {
+            if (o.getNick().equals(receiverName)) {
+                hasReceiver = true;
+                o.sendMsg(senderName + ": " + msg.toString());
+            }
+        }
+        if (!hasReceiver) {
+            for (ClientHandler c : clients) {
+                if (c.getNick().equals(senderName)) {
+                    c.sendMsg("Доставка сообщения невозможна");
+                }
+            }
+        } else {
+            for (ClientHandler c : clients) {
+                if (c.getNick().equals(senderName)) {
+                    c.sendMsg(senderName + ": " + str);
+                }
+            }
+        }
+    }
+
+    public boolean isBusyNickname(String nick){
+        for (ClientHandler o: clients) {
+            if (o.getNick().equals(nick)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
